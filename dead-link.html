@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<!-- Dead link fixture: <a href> with preventDefault. Expected: 1× Dead Link. -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bug Tracker Fixture — Dead Link</title>
+  <style>
+    body { font-family: -apple-system, system-ui, sans-serif; max-width: 600px; margin: 40px auto; padding: 0 20px; color: #222; }
+    h1 { color: #1a1a1a; }
+    .dead-link { display: inline-block; padding: 12px 24px; margin: 10px 0; background: #cc0000; color: #fff; border-radius: 6px; text-decoration: none; font-size: 16px; }
+  </style>
+</head>
+<body>
+  <h1>Dead Link Fixture</h1>
+  <p>The link below has a real <code>href</code> but <code>preventDefault()</code> swallows the navigation. To the agent it looks clickable; clicking does nothing.</p>
+  <p>Expected gauge output: <strong>1 bug — 1× Dead Link</strong>.</p>
+
+  <a href="./dead-link.html?should-not-arrive=1"
+     class="dead-link"
+     onclick="event.preventDefault(); return false;">
+    Dead Link (URL won't change when clicked)
+  </a>
+</body>
+</html>

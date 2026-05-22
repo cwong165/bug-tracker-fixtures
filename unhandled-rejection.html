@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<!-- Unhandled rejection fixture: Promise.reject with no catch. Expected: 1× Unhandled Promise Rejection. -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bug Tracker Fixture — Unhandled Promise Rejection</title>
+  <style>
+    body { font-family: -apple-system, system-ui, sans-serif; max-width: 600px; margin: 40px auto; padding: 0 20px; color: #222; }
+    h1 { color: #1a1a1a; }
+  </style>
+</head>
+<body>
+  <h1>Unhandled Promise Rejection Fixture</h1>
+  <p>This page fires an unhandled promise rejection after load. The injected <code>window.addEventListener('unhandledrejection', ...)</code> listener should catch it.</p>
+  <p>Expected gauge output: <strong>1 bug — 1× Unhandled Promise Rejection</strong>.</p>
+
+  <script>
+    setTimeout(function () {
+      Promise.reject(new Error('Intentional async rejection from unhandled-rejection.html fixture'));
+    }, 100);
+  </script>
+</body>
+</html>

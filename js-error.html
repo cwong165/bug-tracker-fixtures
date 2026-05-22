@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<!-- JS error fixture: throws an uncaught Error on load. Expected: 1× Uncaught JS Exception. -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bug Tracker Fixture — JS Error</title>
+  <style>
+    body { font-family: -apple-system, system-ui, sans-serif; max-width: 600px; margin: 40px auto; padding: 0 20px; color: #222; }
+    h1 { color: #1a1a1a; }
+  </style>
+</head>
+<body>
+  <h1>JS Error Fixture</h1>
+  <p>This page throws an uncaught JavaScript exception during load. Playwright's <code>pageerror</code> event fires immediately.</p>
+  <p>Expected gauge output: <strong>1 bug — 1× Uncaught JS Exception</strong>.</p>
+
+  <script>
+    throw new Error('Intentional uncaught exception from js-error.html fixture');
+  </script>
+</body>
+</html>

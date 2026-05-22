@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<!-- Mixed-bugs fixture: uncaught JS exception, unhandled rejection, dead link, dead button. Expected: 4 bugs across 4 categories. -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bug Tracker Fixture — Mixed Bugs</title>
+  <style>
+    body { font-family: -apple-system, system-ui, sans-serif; max-width: 600px; margin: 40px auto; padding: 0 20px; color: #222; }
+    h1 { color: #1a1a1a; }
+    .dead-link, .dead-btn { display: inline-block; padding: 12px 24px; margin: 10px 8px 10px 0; background: #cc0000; color: #fff; border: none; border-radius: 6px; cursor: pointer; text-decoration: none; font-size: 16px; }
+  </style>
+</head>
+<body>
+  <h1>Mixed Bugs Fixture</h1>
+  <p>This page combines several bug categories:</p>
+  <ul>
+    <li>Uncaught JS exception (on load)</li>
+    <li>Unhandled promise rejection (async, after load)</li>
+    <li>Dead link (clickable but URL won't change)</li>
+    <li>Dead button (clickable but nothing happens)</li>
+  </ul>
+  <p>Expected gauge output: <strong>4 bugs across 4 categories</strong> — assuming the agent actually clicks both the link and the button. If it only clicks one, you'll see 3 bugs.</p>
+
+  <a href="./mixed-bugs.html?should-not-arrive=1"
+     class="dead-link"
+     onclick="event.preventDefault(); return false;">
+    Dead Link
+  </a>
+
+  <button class="dead-btn" onclick="event.preventDefault();">
+    Dead Button
+  </button>
+
+  <script>
+    setTimeout(function () {
+      Promise.reject(new Error('Intentional async rejection from mixed-bugs.html fixture'));
+    }, 100);
+
+    throw new Error('Intentional uncaught exception from mixed-bugs.html fixture');
+  </script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<!-- Dead button fixture: <button> with preventDefault. Expected: 1× Dead Interaction. -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bug Tracker Fixture — Dead Button</title>
+  <style>
+    body { font-family: -apple-system, system-ui, sans-serif; max-width: 600px; margin: 40px auto; padding: 0 20px; color: #222; }
+    h1 { color: #1a1a1a; }
+    .dead-btn { display: inline-block; padding: 12px 24px; margin: 10px 0; background: #cc0000; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; }
+  </style>
+</head>
+<body>
+  <h1>Dead Button Fixture</h1>
+  <p>The button below looks clickable but its handler calls <code>preventDefault()</code> and does nothing else. No DOM mutation, no URL change.</p>
+  <p>Expected gauge output: <strong>1 bug — 1× Dead Interaction</strong>.</p>
+
+  <button id="dead-btn" class="dead-btn" onclick="event.preventDefault();">
+    Dead Button (clicking does nothing)
+  </button>
+</body>
+</html>
