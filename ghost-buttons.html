@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<!--
+  GHOST BUTTON GAUNTLET — realistic unbiased dead-click test.
+  All buttons look identical. Mix of dead / working / "fake-working" (fire misleading signals).
+  Designed to NOT favor the 12-signal detector — several dead buttons deliberately fire 1-2 signals
+  that a naive detector would mistake for "it worked."
+
+  GROUND TRUTH (for evaluation only — not visible in the rendered screenshot):
+   1. Add to Cart    → DEAD          (preventDefault, zero effect)
+   2. Subscribe      → DEAD          (console.error only — no visible change)
+   3. Save Changes   → DEAD (tricky) (fires fetch() to a 404 — network signal fires but action failed)
+   4. Like           → WORKING       (toggles heart ♡→♥, real text + DOM change)
+   5. Download       → DEAD          (handler throws an Error immediately)
+   6. Submit Order   → DEAD          (disabled attribute, but styled to look fully enabled)
+   7. Show Details   → WORKING       (expands a hidden panel — real DOM + layout-shift)
+   8. Apply Coupon   → DEAD (tricky) (adds a CSS class to ITSELF only — self-mutation fires but the
+                                       promised "Discount applied!" message never appears)
+
+  Expected: a good detector flags 1,2,3,5,6,8 (6 dead) and leaves 4,7 (2 working) alone.
+  The hard cases are 3 and 8 (fire misleading signals) — false-negative risk.
+  Buttons 4 and 7 are false-positive risk (must NOT be flagged).
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account Settings — Ghost Button Gauntlet</title>
+  <style>
+    body { font-family: -apple-system, system-ui, "Segoe UI", sans-serif; max-width: 760px; margin: 32px auto; padding: 0 20px; color: #1a1a1a; background: #fafafa; }
+    h1 { font-size: 22px; margin-bottom: 4px; }
+    p.sub { color: #666; margin-top: 0; font-size: 14px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 24px; }
+    .card { background: #fff; border: 1px solid #e2e2e2; border-radius: 10px; padding: 16px; }
+    .card h3 { margin: 0 0 8px; font-size: 15px; }
+    .card p { margin: 0 0 12px; font-size: 13px; color: #777; }
+    /* ALL buttons share the exact same visual style — you cannot tell dead from alive by looking */
+    .btn { display: inline-block; width: 100%; padding: 11px 16px; font-size: 14px; font-weight: 600;
+           color: #fff; background: linear-gradient(180deg,#3b82f6,#2563eb); border: none; border-radius: 8px;
+           cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.15); transition: filter .12s, transform .05s; }
+    .btn:hover { filter: brightness(1.06); }
+    .btn:active { transform: translateY(1px); }
+    .feedback { margin-top: 10px; font-size: 13px; min-height: 18px; }
+    .ok { color: #15803d; font-weight: 600; }
+    .heart { font-size: 16px; }
+    .panel { display: none; margin-top: 10px; padding: 10px; background: #f0f7ff; border: 1px solid #cfe3ff; border-radius: 6px; font-size: 13px; }
+    .coupon-applied { box-shadow: 0 0 0 2px #22c55e; }
+  </style>
+</head>
+<body>
+  <h1>Account Settings</h1>
+  <p class="sub">Manage your subscription, orders, and preferences.</p>
+
+  <div class="grid">
+    <!-- 1. Add to Cart — DEAD: preventDefault, nothing happens -->
+    <div class="card">
+      <h3>Premium Plan</h3>
+      <p>Upgrade to unlock all features.</p>
+      <button class="btn" onclick="event.preventDefault(); return false;">Add to Cart</button>
+    </div>
+
+    <!-- 2. Subscribe — DEAD: console.error only, no visible effect -->
+    <div class="card">
+      <h3>Newsletter</h3>
+      <p>Get weekly product updates.</p>
+      <button class="btn" onclick="console.error('subscribe handler fired but UI not updated');">Subscribe</button>
+    </div>
+
+    <!-- 3. Save Changes — DEAD (tricky): fires a real fetch that 404s. Network signal fires but nothing saved. -->
+    <div class="card">
+      <h3>Profile</h3>
+      <p>Update your display name.</p>
+      <button class="btn" onclick="fetch('/api/save-profile-does-not-exist', {method:'POST'}).catch(function(){});">Save Changes</button>
+    </div>
+
+    <!-- 4. Like — WORKING: toggles heart, real DOM + text change -->
+    <div class="card">
+      <h3>Featured Article</h3>
+      <p>"10 tips for productivity"</p>
+      <button class="btn" id="likeBtn" onclick="(function(){var b=document.getElementById('likeBtn');var liked=b.getAttribute('data-liked')==='1';b.setAttribute('data-liked',liked?'0':'1');b.innerHTML=liked?'<span class=\'heart\'>♡<\/span> Like':'<span class=\'heart\'>♥<\/span> Liked';})();"><span class="heart">&#9825;</span> Like</button>
+    </div>
+
+    <!-- 5. Download — DEAD: handler throws immediately -->
+    <div class="card">
+      <h3>Invoice</h3>
+      <p>Download your latest invoice (PDF).</p>
+      <button class="btn" onclick="throw new Error('Download handler crashed: generatePdf is not defined');">Download</button>
+    </div>
+
+    <!-- 6. Submit Order — DEAD: disabled but styled to look enabled -->
+    <div class="card">
+      <h3>Checkout</h3>
+      <p>Place your order now.</p>
+      <button class="btn" disabled style="opacity:1; cursor:pointer;">Submit Order</button>
+    </div>
+
+    <!-- 7. Show Details — WORKING: expands a real hidden panel -->
+    <div class="card">
+      <h3>Order #4821</h3>
+      <p>Shipped 2 days ago.</p>
+      <button class="btn" onclick="var p=document.getElementById('detailsPanel'); p.style.display = p.style.display==='block' ? 'none':'block';">Show Details</button>
+      <div class="panel" id="detailsPanel">Tracking: 1Z999AA10123456784 · Carrier: UPS · ETA: tomorrow</div>
+    </div>
+
+    <!-- 8. Apply Coupon — DEAD (tricky): adds a class to ITSELF only. Self-mutation fires but the promised message never shows. -->
+    <div class="card">
+      <h3>Discount</h3>
+      <p>Apply coupon code SAVE20.</p>
+      <button class="btn" id="couponBtn" onclick="document.getElementById('couponBtn').classList.add('coupon-applied');">Apply Coupon</button>
+      <div class="feedback" id="couponMsg"><!-- the "Discount applied!" message is supposed to appear here but the handler never sets it --></div>
+    </div>
+  </div>
+</body>
+</html>
