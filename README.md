@@ -10,6 +10,39 @@ Tiny self-contained HTML pages with deliberate bugs, used to verify browser-simu
 - `https://cwong165.github.io/bug-tracker-fixtures/unhandled-rejection.html` — 1× Unhandled Promise Rejection
 - `https://cwong165.github.io/bug-tracker-fixtures/mixed-bugs.html` — multiple categories at once
 - `https://cwong165.github.io/bug-tracker-fixtures/ghost-buttons.html` — **unbiased ghost-button gauntlet** (8 realistic buttons, see below)
+- `https://cwong165.github.io/bug-tracker-fixtures/dead-nav.html` — **dead-navigation gauntlet** (10 nav elements on a shopping site, see below)
+
+## Dead-Nav Gauntlet (`dead-nav.html`)
+
+Realistic shopping-site UI ("ShopMart") with 10 navigation elements — links and buttons that look like they should navigate somewhere. Tests **first-click dead-navigation detection** via conservative DOM inspection (no behavioral retry needed).
+
+The avoid list does **not** catch any of these: the agent clicks each nav element once, sees nothing navigated, moves on. Only structural inspection of the element's HTML can flag them.
+
+**Ground truth (10 elements):**
+
+| # | Element | True state | Mechanism |
+|---|---------|-----------|-----------|
+| 1 | Help (header) | DEAD | `<a>Help</a>` — no `href` attribute at all |
+| 2 | My Account (header) | DEAD | `<a href="">` — empty href |
+| 3 | View Cart (header) | DEAD | `<a href="#">` — dead-hash href, no JS |
+| 4 | Sign In (header) | DEAD | `onclick="window.location=''"` — looks like nav, does nothing |
+| 5 | Special Offers (hero) | DEAD | `disabled` attribute, styled to look enabled |
+| 6 | Track Order (footer) | DEAD | `onclick="event.preventDefault(); return false;"` |
+| 7 | FAQ (footer) | DEAD | `href="javascript:void(0)"` |
+| 8 | Browse (header) | WORKING | `<a href="#products">` — real anchor target |
+| 9 | Shop Now (hero) | WORKING | `<a href="#products">` — real anchor target |
+| 10 | All Categories (footer) | WORKING | real external href to `all-working.html` |
+
+**Scoring the detector:**
+- Should flag: 1, 2, 3, 4, 5, 6, 7 (seven dead)
+- Should NOT flag: 8, 9, 10 (three working)
+- All cases are structurally unambiguous — no hard hidden traps. Pure conservative-DOM-inspection test.
+- False-positive guards: 8, 9, 10 must stay clean (they all have real `href` values).
+
+**Suggested agent goal:**
+> "You're shopping on ShopMart. Try to navigate the site — view your cart, sign in, check the special offers, look at FAQ, and track a recent order."
+
+The agent will naturally click multiple dead links in one session. A conservative DOM check flags each on the FIRST click.
 
 ## Ghost Button Gauntlet (`ghost-buttons.html`)
 
