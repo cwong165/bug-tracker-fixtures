@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<!--
+  FLAKY BUTTON FIXTURE — single page, single button with configurable success rate.
+  Each click has a probabilistic chance of working. "Working" = redirect to congrats.html.
+  "Not working" = nothing happens, stays on this URL.
+
+  Success rate is set by the ?rate URL parameter (default 0.5):
+    flaky-button.html              → 50% chance per click (SUSPECTED Possibly Flaky)
+    flaky-button.html?rate=0.2     → 20% chance (CONFIRMED — mostly broken)
+    flaky-button.html?rate=0.8     → 80% chance (NOT FLAGGED — mostly works)
+
+  Tests the success-rate redemption logic:
+    < 50% → CONFIRMED Unresponsive
+    50–80% → SUSPECTED Possibly Flaky
+    ≥ 80% → dropped entirely
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up — Flaky Button</title>
+  <style>
+    body { font-family: -apple-system, system-ui, "Segoe UI", sans-serif; max-width: 480px; margin: 80px auto; padding: 0 20px; color: #1a1a1a; background: #fafafa; }
+    h1 { font-size: 24px; margin-bottom: 4px; }
+    p.sub { color: #666; margin-top: 0; font-size: 14px; }
+    .card { background: #fff; border: 1px solid #e2e2e2; border-radius: 10px; padding: 32px; margin-top: 32px; }
+    .card h3 { margin: 0 0 8px; font-size: 16px; }
+    .card p { margin: 0 0 20px; font-size: 13px; color: #777; }
+    .btn { display: inline-block; width: 100%; padding: 14px 16px; font-size: 15px; font-weight: 600;
+           color: #fff; background: linear-gradient(180deg,#3b82f6,#2563eb); border: none; border-radius: 8px;
+           cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.15); transition: filter .12s, transform .05s; }
+    .btn:hover { filter: brightness(1.06); }
+    .btn:active { transform: translateY(1px); }
+  </style>
+</head>
+<body>
+  <h1>Complete Your Sign Up</h1>
+  <p class="sub">Click below to finalize your account.</p>
+
+  <div class="card">
+    <h3>Create Account</h3>
+    <p>Standard sign-up. Click the button below to continue.</p>
+    <button class="btn" id="signupBtn">Create Account</button>
+  </div>
+
+  <script>
+    // Pull success rate from URL ?rate=0.5 (or whatever), default 0.5.
+    var params = new URLSearchParams(window.location.search);
+    var rate = parseFloat(params.get('rate'));
+    if (isNaN(rate) || rate < 0 || rate > 1) rate = 0.5;
+
+    document.getElementById('signupBtn').addEventListener('click', function() {
+      if (Math.random() < rate) {
+        window.location.href = 'congrats.html';
+      }
+      // else: do nothing — click is a dead click this time around
+    });
+  </script>
+</body>
+</html>

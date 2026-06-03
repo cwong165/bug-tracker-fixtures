@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<!--
+  SLOW BUTTON FIXTURE — single page, single button.
+  Button ALWAYS works, but takes 5–8 seconds before redirecting.
+  Tests Layer 2 (delayed validation) in the engine.
+
+  Expected detector behavior: NO bug reported. Delayed validation should catch the eventual navigation.
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up — Slow Button</title>
+  <style>
+    body { font-family: -apple-system, system-ui, "Segoe UI", sans-serif; max-width: 480px; margin: 80px auto; padding: 0 20px; color: #1a1a1a; background: #fafafa; }
+    h1 { font-size: 24px; margin-bottom: 4px; }
+    p.sub { color: #666; margin-top: 0; font-size: 14px; }
+    .card { background: #fff; border: 1px solid #e2e2e2; border-radius: 10px; padding: 32px; margin-top: 32px; }
+    .card h3 { margin: 0 0 8px; font-size: 16px; }
+    .card p { margin: 0 0 20px; font-size: 13px; color: #777; }
+    .btn { display: inline-block; width: 100%; padding: 14px 16px; font-size: 15px; font-weight: 600;
+           color: #fff; background: linear-gradient(180deg,#3b82f6,#2563eb); border: none; border-radius: 8px;
+           cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.15); transition: filter .12s, transform .05s; }
+    .btn:hover { filter: brightness(1.06); }
+    .btn:active { transform: translateY(1px); }
+  </style>
+</head>
+<body>
+  <h1>Complete Your Sign Up</h1>
+  <p class="sub">Click below to finalize your account.</p>
+
+  <div class="card">
+    <h3>Create Account</h3>
+    <p>Standard sign-up. Click the button below to continue.</p>
+    <button class="btn" onclick="(function(){var d=5000+Math.random()*3000; setTimeout(function(){window.location.href='congrats.html';}, d);})();">Create Account</button>
+  </div>
+</body>
+</html>
