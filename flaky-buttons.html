@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<!--
+  FLAKY BUTTON GAUNTLET — tests the success-rate redemption logic.
+  All buttons look identical. Each one has a different per-click success probability,
+  plus one button that ALWAYS works but is slow (tests Layer 2 delayed validation).
+
+  "Working" here means: the button navigates to congrats.html ("You made it!").
+  "Dead" means: nothing happens, the page stays on this URL.
+
+  GROUND TRUTH (not visible in the rendered screenshot):
+   1. Always Works     → ALWAYS WORKING        (control — should NEVER be flagged)
+   2. Slow but Reliable → ALWAYS WORKING, 5–8s delay (tests Layer 2 delayed validation)
+   3. Mostly Works (80%) → 80% per-click success (should NOT be reported — rate ≥ 80% drops)
+   4. Coin Flip (50%)   → 50% per-click success (should show as SUSPECTED "Possibly Flaky")
+   5. Mostly Broken (20%) → 20% per-click success (should show as CONFIRMED — mostly broken)
+   6. Truly Dead        → 0% — never works (should show as CONFIRMED Unresponsive)
+
+  Expected detector behavior on a single-agent run with multiple clicks:
+   - Buttons 1, 2, 3 → no bug reported
+   - Button 4 → SUSPECTED Possibly Flaky Element (~50% success)
+   - Buttons 5, 6 → CONFIRMED Unresponsive Element
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up — Flaky Button Gauntlet</title>
+  <style>
+    body { font-family: -apple-system, system-ui, "Segoe UI", sans-serif; max-width: 760px; margin: 32px auto; padding: 0 20px; color: #1a1a1a; background: #fafafa; }
+    h1 { font-size: 22px; margin-bottom: 4px; }
+    p.sub { color: #666; margin-top: 0; font-size: 14px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 24px; }
+    .card { background: #fff; border: 1px solid #e2e2e2; border-radius: 10px; padding: 16px; }
+    .card h3 { margin: 0 0 8px; font-size: 15px; }
+    .card p { margin: 0 0 12px; font-size: 13px; color: #777; }
+    /* ALL buttons share the exact same visual style — flakiness is hidden from the agent */
+    .btn { display: inline-block; width: 100%; padding: 11px 16px; font-size: 14px; font-weight: 600;
+           color: #fff; background: linear-gradient(180deg,#3b82f6,#2563eb); border: none; border-radius: 8px;
+           cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.15); transition: filter .12s, transform .05s; }
+    .btn:hover { filter: brightness(1.06); }
+    .btn:active { transform: translateY(1px); }
+  </style>
+</head>
+<body>
+  <h1>Complete Your Sign Up</h1>
+  <p class="sub">Click any of the options below to finish creating your account.</p>
+
+  <div class="grid">
+    <!-- 1. Always Works — control button -->
+    <div class="card">
+      <h3>Standard Account</h3>
+      <p>Most popular option for new users.</p>
+      <button class="btn" onclick="window.location.href='congrats.html';">Create Account</button>
+    </div>
+
+    <!-- 2. Slow but Reliable — always works, but takes 5-8 seconds (tests Layer 2 delayed validation) -->
+    <div class="card">
+      <h3>Email Verification</h3>
+      <p>We'll send a verification link first.</p>
+      <button class="btn" onclick="(function(){var d=5000+Math.random()*3000; setTimeout(function(){window.location.href='congrats.html';}, d);})();">Send Verification</button>
+    </div>
+
+    <!-- 3. Mostly Works (80%) — should NOT be reported -->
+    <div class="card">
+      <h3>Quick Sign Up</h3>
+      <p>Fastest path to get started.</p>
+      <button class="btn" onclick="if(Math.random()<0.8){window.location.href='congrats.html';}">Sign Up Now</button>
+    </div>
+
+    <!-- 4. Coin Flip (50%) — should show as SUSPECTED Possibly Flaky Element -->
+    <div class="card">
+      <h3>Premium Trial</h3>
+      <p>Try premium features for 30 days.</p>
+      <button class="btn" onclick="if(Math.random()<0.5){window.location.href='congrats.html';}">Start Trial</button>
+    </div>
+
+    <!-- 5. Mostly Broken (20%) — should show as CONFIRMED -->
+    <div class="card">
+      <h3>Enterprise Plan</h3>
+      <p>For teams of 50+ users.</p>
+      <button class="btn" onclick="if(Math.random()<0.2){window.location.href='congrats.html';}">Contact Sales</button>
+    </div>
+
+    <!-- 6. Truly Dead — 0% — should show as CONFIRMED Unresponsive -->
+    <div class="card">
+      <h3>Legacy Migration</h3>
+      <p>Import from your old account.</p>
+      <button class="btn" onclick="event.preventDefault(); return false;">Migrate Account</button>
+    </div>
+  </div>
+</body>
+</html>
