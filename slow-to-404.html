@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<!--
+  SLOW-TO-404 FIXTURE — single page, single button.
+  Button takes 5-8 seconds (slow), then navigates to a non-existent URL.
+  GitHub Pages will serve its default 404 page with a real HTTP 404 status.
+
+  Tests two things at once:
+  - Layer 2 delayed validation (the click takes a while before navigation fires)
+  - 404 catcher (the navigation lands on a real HTTP 404 page)
+
+  Expected detector behavior:
+  - NO Dead Interaction bug (the click ultimately navigated)
+  - YES "Page Not Found (404)" bug — CONFIRMED tier, document-level failed nav
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up — Slow Button → 404</title>
+  <style>
+    body { font-family: -apple-system, system-ui, "Segoe UI", sans-serif; max-width: 480px; margin: 80px auto; padding: 0 20px; color: #1a1a1a; background: #fafafa; }
+    h1 { font-size: 24px; margin-bottom: 4px; }
+    p.sub { color: #666; margin-top: 0; font-size: 14px; }
+    .card { background: #fff; border: 1px solid #e2e2e2; border-radius: 10px; padding: 32px; margin-top: 32px; }
+    .card h3 { margin: 0 0 8px; font-size: 16px; }
+    .card p { margin: 0 0 20px; font-size: 13px; color: #777; }
+    .btn { display: inline-block; width: 100%; padding: 14px 16px; font-size: 15px; font-weight: 600;
+           color: #fff; background: linear-gradient(180deg,#3b82f6,#2563eb); border: none; border-radius: 8px;
+           cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.15); transition: filter .12s, transform .05s; }
+    .btn:hover { filter: brightness(1.06); }
+    .btn:active { transform: translateY(1px); }
+  </style>
+</head>
+<body>
+  <h1>Complete Your Sign Up</h1>
+  <p class="sub">Click below to finalize your account.</p>
+
+  <div class="card">
+    <h3>Submit Application</h3>
+    <p>Click to submit. This may take a few seconds.</p>
+    <button class="btn" onclick="(function(){var d=5000+Math.random()*3000; setTimeout(function(){window.location.href='/bug-tracker-fixtures/this-page-does-not-exist.html';}, d);})();">Submit Application</button>
+  </div>
+</body>
+</html>
